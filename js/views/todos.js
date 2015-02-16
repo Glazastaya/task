@@ -6,15 +6,17 @@ var app = app || {};
 
 app.TodoView = Backbone.View.extend({
     tagName: 'li',
-
     todoTpl: _.template($('#item-template').html()),
-
     render: function () {
         this.$el.html(this.todoTpl(this.model.attributes));
         this.$el.toggleClass('completed', this.model.get('completed'));
         this.toggleVisible();
 
+        this.$editTextarea = this.$('.edit-description');
         this.$input = this.$('.edit');
+        this.$textarea = $('.task-description');
+
+        this.$editTextarea.hide();
         return this;
     },
 
@@ -25,18 +27,17 @@ app.TodoView = Backbone.View.extend({
         'dblclick label': 'edit',
         'click .destroy': 'clear',
         'keypress .edit': 'updateOnEnter',
-        'blur .edit': 'close'
+        'keypress .edit-description': 'updateModel'
+            //'blur .edit': 'close'
 
     },
 
     getDescription: function () {
         this.$textarea.prop("disabled", true);
-        $('.task-description').val(this.model.get('description'));
+        this.$textarea.val(this.model.get('description'));
     },
 
     initialize: function () {
-        this.$textarea = this.$('.task-description');
-
         this.listenTo(this.model, 'change', this.render);
         this.listenTo(this.model, 'destroy', this.remove);
         this.listenTo(this.model, 'visible', this.toggleVisible);
@@ -44,11 +45,12 @@ app.TodoView = Backbone.View.extend({
 
     toggleVisible: function () {
         this.$el.toggleClass('hidden', this.isHidden());
+        console.log(this.$input);
     },
 
     isHidden: function () {
         var isCompleted = this.model.get('completed');
-        return ( // hidden cases only
+        return ( 
             (!isCompleted && app.TodoFilter === 'completed') || (isCompleted && app.TodoFilter === 'active')
         );
     },
@@ -59,13 +61,13 @@ app.TodoView = Backbone.View.extend({
 
     edit: function () {
         this.$el.addClass('editing');
-        this.$input.focus();
+
+
     },
 
     close: function () {
         var value = this.$input.val().trim();
-
-        if (value) {            
+        if (value) {
             this.model.save({
                 title: value
             });
@@ -77,13 +79,38 @@ app.TodoView = Backbone.View.extend({
     },
 
     updateOnEnter: function (e) {
+        this.$textarea.hide();
         if (e.which === ENTER_KEY) {
-            this.close();
+            this.$textarea.off('keypress', app.AppView.createOnEnter);
+            this.$editTextarea.show();
+            this.$editTextarea.focus();
+            
         }
     },
 
     clear: function () {
         this.model.destroy();
+    },
+
+    updateModel: function (e) {
+        var value = this.$input.val().trim();
+        if (e.which === ENTER_KEY) {
+            console.log(value);
+            if (value) {
+                console.log(this.$el);
+                this.model.save({
+                    title: this.$input.val(),
+                    description: this.$editTextarea.html()
+                });
+            } else {
+                this.clear();
+            }
+            this.$textarea.show();
+            $('#new-todo').focus();
+        };
+        this.$el.removeClass('editing');
+
+
     }
 
 });

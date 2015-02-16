@@ -87,7 +87,7 @@
          }
      },
 
-     createOnEnter: function (event) {
+     createOnEnter: function (event) {console.log('9999');
          if (event.which == ENTER_KEY && this.$input.val().trim()) {
              app.Todos.create({
                  title: this.$input.val().trim(),
@@ -100,7 +100,7 @@
              this.$textarea.prop("disabled", true);
              this.$input.val('');
              this.$input.focus();
-         }
+         } 
 
      },
 
