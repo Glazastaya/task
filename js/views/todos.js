@@ -1,114 +1,120 @@
-var app = app || {};
+/*global define*/
+define([
+	'jquery',
+	'underscore',
+	'backbone',
+	'text!templates/todos.html',
+	'common'
+], function ($, _, Backbone, todosTemplate, Common) {
+	'use strict';
 
-// Todo Item View
-// --------------
+    var TodoView = Backbone.View.extend({
+        tagName: 'li',
+        todoTpl: _.template(todosTemplate),
+        render: function () {
+            this.$el.html(this.todoTpl(this.model.attributes));
+            this.$el.toggleClass('completed', this.model.get('completed'));
+            this.toggleVisible();
+
+            this.$input = this.$('.edit');
 
 
-app.TodoView = Backbone.View.extend({
-    tagName: 'li',
-    todoTpl: _.template($('#item-template').html()),
-    render: function () {
-        this.$el.html(this.todoTpl(this.model.attributes));
-        this.$el.toggleClass('completed', this.model.get('completed'));
-        this.toggleVisible();
+            _.bindAll(this, "updateModel");
 
-        this.$editTextarea = this.$('.edit-description');
-        this.$input = this.$('.edit');
+            return this;
+        },
 
-
-        this.$editTextarea.hide();
-        _.bindAll(this, "updateModel");
-        
-        return this;
-    },
-
-    events: {
-        'mouseenter  .view': 'getDescription',
-        'mouseleave .view': 'app.AppView.clearDescription',
-        'click .toggle': 'togglecompleted',
-        'dblclick label': 'edit',
-        'click .destroy': 'clear',
-        'keypress .edit': 'moveToDescription',
-        //'keypress .task-description': 'updateModel'
+        events: {
+            'mouseenter  .view': 'getDescription',
+            'mouseleave .view': 'app.AppView.clearDescription',
+            'click .toggle': 'togglecompleted',
+            'dblclick label': 'edit',
+            'click .destroy': 'clear',
+            'keypress .edit': 'moveToDescription',
+            //'keypress .task-description': 'updateModel'
             //'keypress .edit-description': 'updateModel'
             //'blur .edit': 'close'
 
-    },
+        },
 
-    getDescription: function () {
-        this.$textarea.prop("disabled", true);
-        this.$textarea.val(this.model.get('description'));
-    },
+        getDescription: function () {
+            this.$textarea.prop("disabled", true);
+            this.$textarea.val(this.model.get('description'));
+        },
 
-    initialize: function () {
-        this.listenTo(this.model, 'change', this.render);
-        this.listenTo(this.model, 'destroy', this.remove);
-        this.listenTo(this.model, 'visible', this.toggleVisible);
-        this.$textarea = $('.task-description');       
-        
-        
-    },
+        initialize: function () {
+            this.listenTo(this.model, 'change', this.render);
+            this.listenTo(this.model, 'destroy', this.remove);
+            this.listenTo(this.model, 'visible', this.toggleVisible);
 
-    toggleVisible: function () {
-        this.$el.toggleClass('hidden', this.isHidden());
-    },
+            this.$textarea = $('.task-description');
 
-    isHidden: function () {
-        var isCompleted = this.model.get('completed');
-        return (
-            (!isCompleted && app.TodoFilter === 'completed') || (isCompleted && app.TodoFilter === 'active')
-        );
-    },
 
-    togglecompleted: function () {
-        this.model.toggle();
-    },
+        },
 
-    edit: function () {
-        this.$el.addClass('editing');
+        toggleVisible: function () {
+            this.$el.toggleClass('hidden', this.isHidden());
+        },
 
-    },
+        isHidden: function () {
+            var isCompleted = this.model.get('completed');
+            return (
+                (!isCompleted && Common.TodoFilter === 'completed') || (isCompleted && Common.TodoFilter === 'active')
+            );
+        },
 
-    close: function () {
-        var value = this.$input.val().trim();
-        if (value) {
-            this.model.save({
-                title: value
-            });
-        } else {
-            this.clear();
-        }
+        togglecompleted: function () {
+            this.model.toggle();
+        },
 
-        this.$el.removeClass('editing');
-    },
+        edit: function () {
+            this.$el.addClass('editing');
 
-    moveToDescription: function (e) {
-        if (e.which === ENTER_KEY) {
-            this.$textarea.prop("disabled", false);
-            this.$textarea.focus();
-            this.$textarea.keypress(this.updateModel);
-        }
-    },
+        },
 
-    clear: function () {
-        this.model.destroy();
-    },
-
-    updateModel: function (e) {       
-        var value = this.$input.val().trim();
-        if (e.which === ENTER_KEY) {
+        close: function () {
+            var value = this.$input.val().trim();
             if (value) {
                 this.model.save({
-                    title: this.$input.val(),
-                    description: this.$textarea.val()
+                    title: value
                 });
             } else {
                 this.clear();
             }
-            $('.task-description').off('keypress');
-            $('#new-todo').focus();
-        };
-        this.$el.removeClass('editing');
-    }
 
+            this.$el.removeClass('editing');
+        },
+
+        moveToDescription: function (e) {
+            if (e.which === Common.ENTER_KEY) {
+                this.$textarea.prop("disabled", false);
+                this.$textarea.focus();
+                this.$textarea.keypress(this.updateModel);
+            }
+        },
+
+        clear: function () {
+            this.model.destroy();
+        },
+
+        updateModel: function (e) {
+            var value = this.$input.val().trim();
+            if (e.which === ENTER_KEY) {
+                if (value) {
+                    this.model.save({
+                        title: this.$input.val(),
+                        description: this.$textarea.val()
+                    });
+                } else {
+                    this.clear();
+                }
+                $('.task-description').off('keypress');
+                $('#new-todo').focus();
+            };
+            this.$el.removeClass('editing');
+        }
+
+    });
+    
+    return TodoView;
 });

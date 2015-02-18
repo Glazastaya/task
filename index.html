@@ -15,7 +15,6 @@
             <h1>todos</h1>
             <div class="task">
                 <input id="new-todo" placeholder="What needs to be done?" autofocus>
-                <div class="data"></div>
                 <textarea class="task-description" disabled></textarea>
             </div>
 
@@ -30,41 +29,14 @@
 
             <footer id="footer"></footer>
 
-            <script type="text/template" id="item-template">
-                <div class="view">
-                    <input class="toggle" type="checkbox" <%=completed ? 'checked' : '' %>>
-                    <label><%=title %></label>
-                    <button class="destroy"></button>
-                </div>
-                <input class="edit" value="<%= title %>">
-                <textarea class="edit-description"><%=description %></textarea>
+            
 
-            </script>
-
-            <script type="text/template" id="stats-template">
-                <span id="todo-count"><strong><%= remaining %></strong> <%= remaining === 1 ? 'item' : 'items' %> left</span>
-                <ul id="filters">
-                    <li>
-                        <a class="selected" href="#/">All</a>
-                    </li>
-                    <li>
-                        <a href="#/active">Active</a>
-                    </li>
-                    <li>
-                        <a href="#/completed">Completed</a>
-                    </li>
-                </ul>
-
-                <% if (completed) { %>
-                    <button id="clear-completed">Clear completed (<%= completed %>)</button>
-
-                    <% } %>
-            </script>
+    
 
 
 
 
-        </section>
+    </section>
 
 
 
@@ -73,16 +45,19 @@
 
 
 
+		<script data-main="js/main" src="js/libs/require/require.js"></script>
 
-    <script src="js/lib/jquery-1.11.2.min.js"></script>
+    <!--<script src="js/lib/jquery-1.11.2.min.js"></script>
     <script src="js/lib/underscore-min.js"></script>
     <script src="js/lib/backbone-min.js"></script>
+    <script src="js/lib/backbone.localStorage-min.js"></script>
+    <script data-main="app" src="js/lib/require.js"></script>
     <script src="js/models/todo.js"></script>
     <script src="js/collections/todos.js"></script>
     <script src="js/views/todos.js"></script>
     <script src="js/views/app.js"></script>
     <script src="js/routers/router.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app.js"></script>-->
 </body>
 
 </html>
